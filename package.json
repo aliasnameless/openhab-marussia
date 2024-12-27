@@ -12,6 +12,7 @@
   "dependencies": {
     "@mumulhl/duckduckgo-ai-chat": "npm:@jsr/mumulhl__duckduckgo-ai-chat@^3.0.1",
     "cors": "^2.8.5",
+    "eval": "^0.1.8",
     "express": "^4.21.2"
   },
   "devDependencies": {

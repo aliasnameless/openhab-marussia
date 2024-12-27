@@ -3,61 +3,55 @@ import { promises as fs } from 'fs';
 import express from "express";
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import nodeEval from 'eval';
+import handlers from "./handlers.js";
 
 const server = express();
-server.use(cors());
 
 async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms)); // Функция для создания паузы
 }
 
-function extractJSON(str) {
-  const regex = /```json\s*(.+)\s*```/gmsi;
+
+function extractTS(input) {
+  const regex = /```\w+\s*(.+)\s*```/gmsi;
   let m;
-  let json =  str;
-  while ((m = regex.exec(str)) !== null) {
+  let data = input;
+  while ((m = regex.exec(input)) !== null) {
     // This is necessary to avoid infinite loops with zero-width matches
     if (m.index === regex.lastIndex) {
       regex.lastIndex++;
     }
-    json =m[1];
+    data = m[1];
   }
 
-  try {
-    return JSON.parse(json);
-  }  catch(e) {
-    return json;
-  }
+  return data;
 
-    
 }
 
+
 async function main() {
+  // Initialize, optional models are gpt-4o-mini, claude-3-haiku, llama, mixtral
   const chat = await initChat("gpt-4o-mini");
 
-  // Читаем содержимое файла
   const initpromt = await fs.readFile('src/promt.txt', 'utf8');
 
-  // Получаем полный ответ
   console.log(await chat.fetchFull(initpromt));
 
   server
     .use(bodyParser.json())
-    .post("/webhook", async  (req, res) => {
+    .use(cors())
+    .post("/webhook", async (req, res) => {
       let { request, session, version } = req.body;
+
+      console.log('>>>',request['original_utterance'])
       let rawResponce = await chat.fetchFull(request['original_utterance'])
-      console.log(rawResponce)
+      let tsCode = 'module.exports = ' + extractTS(rawResponce)
+      console.log('<<<',tsCode)
 
-      let aiResponce = extractJSON(rawResponce);
 
-      let {functionName, keyWords, message} = aiResponce;
+      let message = nodeEval(tsCode, 'filename',handlers, false);
 
-      //message = message.replace(/[^\w.,-]/g, '');
-      if(functionName && keyWords && message) {
-        //все ок фцнкция сопоставлкена
-      }
-      
-      //console.log(functionName, keyWords, message)
       let result = {
         response: {
           text: message,
@@ -71,7 +65,8 @@ async function main() {
       res.json(result);
     })
     .listen(3000, () => {
-      console.log("Server is running on port 3000");
+      console.log("https://skill-debugger.marusia.mail.ru");
+      console.log("http://localhost:3000/webhook");
     });
 }
 
