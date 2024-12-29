@@ -9,10 +9,12 @@ export default {
     return message;
   },
 
+ 
+ 
   switchScene: (scene, message) => {
     console.log(scene);
     return message;
-  },
+  }, 
 
   notRecognized: (message) => message,
   justTakl: (message) => message,
