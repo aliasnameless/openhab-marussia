@@ -5,6 +5,7 @@ import promises from 'node:fs/promises';
 import fs from 'fs';
 import express from "express";
 import https from 'https';
+import http  from 'http';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import nodeEval from 'eval';
@@ -12,6 +13,7 @@ import handlers from "./handlers.js";
 
 import startDebugMessages from "./debug.js";
 
+const PORT = 3000;
 
 const devMode = process.argv[2] === 'dev';
 
@@ -89,22 +91,23 @@ async function main() {
     .use(cors())
     .post("/webhook", (req, res) => handleRequest(req, res, chat))
 
+  let server;
   if (devMode) {
-    app.listen(port, () => {
-      console.log("https://skill-debugger.marusia.mail.ru");
-      console.log("http://localhost:3000/webhook");
-    });
+    http.createServer(app);
+    server = http;
   } else {
-
     const options = {
       key: fs.readFileSync('/etc/letsencrypt/live/ebrownie.duckdns.org/privkey.pem'),
       cert: fs.readFileSync('/etc/letsencrypt/live/ebrownie.duckdns.org/fullchain.pem')
     };
-    https.createapp(options, app).listen(port, () => {
-      console.log("https://skill-debugger.marusia.mail.ru");
-      console.log("https://ebrownie.duckdns.org:3000/webhook");
-    });
+    https.createServer(options, app);
+    server = https;
   }
+
+  server.listen(PORT, () => {
+    console.log("https://skill-debugger.marusia.mail.ru");
+    console.log(devMode ? `http://localhost:${PORT}/webhook`:`https://ebrownie.duckdns.org:${PORT}/webhook`);
+  });
 
 }
 
