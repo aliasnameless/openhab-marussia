@@ -93,15 +93,13 @@ async function main() {
 
   let server;
   if (devMode) {
-    //http.createServer(app);
-    server = app;
+    server = http.createServer(app);
   } else {
     const options = {
       key: fs.readFileSync('/etc/letsencrypt/live/ebrownie.duckdns.org/privkey.pem'),
       cert: fs.readFileSync('/etc/letsencrypt/live/ebrownie.duckdns.org/fullchain.pem')
     };
-    https.createServer(options, app);
-    server = https;
+    server = https.createServer(options, app);
   }
 
   server.listen(PORT, () => {
