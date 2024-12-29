@@ -1,13 +1,19 @@
 import { initChat } from "@mumulhl/duckduckgo-ai-chat";
-import { promises as fs } from 'fs';
+import promises from 'fs';
+import fs from 'fs';
 import express from "express";
+import https from 'https';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import nodeEval from 'eval';
 import handlers from "./handlers.js";
+
 import startDebugMessages from "./debug.js";
 
-const server = express();
+
+const devMode = process.argv[2] === 'dev';
+
+const app = express();
 
 async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms)); // Функция для создания паузы
@@ -36,7 +42,7 @@ async function handleRequest(req, res, chat) {
 
 
   console.log('>>>', request['original_utterance'])
-  
+
   let rawResponce = await chat.fetchFull(`${new Date()} >> ${request['original_utterance']}`)
   let tsCode = 'module.exports = ' + extractTS(rawResponce)
   console.log('<<<', tsCode)
@@ -68,21 +74,36 @@ async function main() {
   const chat = await initChat('llama');
   //const chat = await initChat('gpt-4o-mini');
 
-  
-  const initpromt = await fs.readFile('src/promt.txt', 'utf8');
+
+  const initpromt = await promises.readFile('src/promt.txt', 'utf8');
 
   console.log(await chat.fetchFull(initpromt));
 
   //startDebugMessages(chat);
 
-  server
-    .use(bodyParser.json()) 
+
+  app
+    .use(bodyParser.json())
     .use(cors())
-    .post("/webhook",  (req, res) => handleRequest(req, res, chat))
-    .listen(3000, () => {
+    .post("/webhook", (req, res) => handleRequest(req, res, chat))
+
+  if (devMode) {
+    app.listen(port, () => {
       console.log("https://skill-debugger.marusia.mail.ru");
       console.log("http://localhost:3000/webhook");
     });
+  } else {
+
+    const options = {
+      key: fs.readFileSync('/etc/letsencrypt/live/ebrownie.duckdns.org/privkey.pem'),
+      cert: fs.readFileSync('/etc/letsencrypt/live/ebrownie.duckdns.org/fullchain.pem')
+    };
+    https.createapp(options, app).listen(port, () => {
+      console.log("https://skill-debugger.marusia.mail.ru");
+      console.log("https://ebrownie.duckdns.org:3000/webhook");
+    });
+  }
+
 }
 
 main().catch(console.error); // Запускаем основную функцию и обрабатываем ошибки 
