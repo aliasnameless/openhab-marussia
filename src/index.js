@@ -93,8 +93,8 @@ async function main() {
 
   let server;
   if (devMode) {
-    http.createServer(app);
-    server = http;
+    //http.createServer(app);
+    server = app;
   } else {
     const options = {
       key: fs.readFileSync('/etc/letsencrypt/live/ebrownie.duckdns.org/privkey.pem'),
