@@ -2,8 +2,8 @@
   "name": "duck.ai",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
+    "dev": "nodemon  dev",
     "start": "nodemon"
   },
   "keywords": [],

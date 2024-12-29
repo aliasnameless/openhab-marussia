@@ -1,5 +1,7 @@
 import { initChat } from "@mumulhl/duckduckgo-ai-chat";
-import promises from 'fs';
+//import promises from 'fs';
+import promises from 'node:fs/promises';
+
 import fs from 'fs';
 import express from "express";
 import https from 'https';
