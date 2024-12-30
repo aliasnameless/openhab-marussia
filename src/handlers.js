@@ -1,3 +1,6 @@
+import fs from 'fs';
+
+
 export default {
   switchLight: (power, location, message) => {
     console.log({ power, location });
@@ -17,5 +20,17 @@ export default {
   }, 
 
   notRecognized: (message) => message,
-  justTakl: (message) => message,
+  freeTalk: (message) => message,
+  
+  saveIdentity: (deathNote, message) => {
+    fs.writeFile('src/death.note', deathNote, (err) => {
+      if (err) {
+          console.error('Ошибка при записи файла:', err);
+      } else {
+          console.log('Файл успешно сохранен!');
+      }
+    });    
+    return message
+  },
+
 }

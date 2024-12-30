@@ -1,6 +1,5 @@
 import { initChat } from "@mumulhl/duckduckgo-ai-chat";
 //import promises from 'fs';
-import promises from 'node:fs/promises';
 
 import fs from 'fs';
 import express from "express";
@@ -10,6 +9,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import nodeEval from 'eval';
 import handlers from "./handlers.js";
+import initPromt from "./promt.js"
 
 import startDebugMessages from "./debug.js";
 
@@ -79,9 +79,9 @@ async function main() {
   //const chat = await initChat('gpt-4o-mini');
 
 
-  const initpromt = await promises.readFile('src/promt.txt', 'utf8');
 
-  console.log(await chat.fetchFull(initpromt));
+
+  console.log(await chat.fetchFull(initPromt));
 
   //startDebugMessages(chat);
 
