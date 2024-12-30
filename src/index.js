@@ -47,7 +47,7 @@ async function handleRequest(req, res, chat) {
 
   console.log('>>>', request['original_utterance'])
 
-  let rawResponce = await chat.fetchFull(`${new Date()} >> ${request['original_utterance']}`)
+  let rawResponce = await chat.fetchFull(`${new Date().toLocaleString()} >> ${request['original_utterance']}`)
   let tsCode = 'module.exports = ' + extractTS(rawResponce)
   console.log('<<<', tsCode)
 
