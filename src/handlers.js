@@ -23,7 +23,9 @@ export default {
   freeTalk: (message) => message,
   
   saveIdentity: (deathNote, message) => {
-    fs.writeFile('src/death.note', deathNote, (err) => {
+    const date = new Date().toLocaleString();
+
+    fs.writeFile('src/death.note', `${deathNote} (запись сделана ${date})\n`, (err) => {
       if (err) {
           console.error('Ошибка при записи файла:', err);
       } else {
@@ -32,5 +34,10 @@ export default {
     });    
     return message
   },
+
+  reset: (message) => {
+    setTimeout(() => process.exit(1), 5_000);
+    return message;
+  }
 
 }
